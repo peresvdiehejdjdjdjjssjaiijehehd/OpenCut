@@ -33,7 +33,9 @@ export function VideoPlayer({
 	// Sync playback events
 	useEffect(() => {
 		const video = videoRef.current;
-		if (!(video && isInClipRange)) return;
+		if (!(video && isInClipRange)) {
+			return;
+		}
 
 		const handleSeekEvent = (e: CustomEvent) => {
 			// Always update video time, even if outside clip range
@@ -94,7 +96,9 @@ export function VideoPlayer({
 	// Sync playback state
 	useEffect(() => {
 		const video = videoRef.current;
-		if (!video) return;
+		if (!video) {
+			return;
+		}
 
 		if (isPlaying && isInClipRange) {
 			video.play().catch(() => {});
@@ -106,7 +110,9 @@ export function VideoPlayer({
 	// Sync volume and speed
 	useEffect(() => {
 		const video = videoRef.current;
-		if (!video) return;
+		if (!video) {
+			return;
+		}
 
 		video.volume = volume;
 		video.muted = muted;

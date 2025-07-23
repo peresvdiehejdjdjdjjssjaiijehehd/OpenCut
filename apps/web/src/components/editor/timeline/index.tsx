@@ -78,8 +78,8 @@ export function Timeline() {
 	const { currentTime, duration, seek, setDuration, isPlaying, toggle } =
 		usePlaybackStore();
 	const [isDragOver, setIsDragOver] = useState(false);
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [progress, setProgress] = useState(0);
+	const [_isProcessing, setIsProcessing] = useState(false);
+	const [_progress, setProgress] = useState(0);
 	const dragCounterRef = useRef(0);
 	const timelineRef = useRef<HTMLDivElement>(null);
 	const rulerRef = useRef<HTMLDivElement>(null);
@@ -142,7 +142,6 @@ export function Timeline() {
 		containerRef: tracksContainerRef,
 		playheadRef,
 		onSelectionComplete: (elements) => {
-			console.log(JSON.stringify({ onSelectionComplete: elements.length }));
 			setSelectedElements(elements);
 		},
 	});
@@ -194,12 +193,6 @@ export function Timeline() {
 
 			// Only process as click if we tracked a mouse down on timeline background
 			if (!isMouseDown) {
-				console.log(
-					JSON.stringify({
-						ignoredClickWithoutMouseDown: true,
-						timeStamp: e.timeStamp,
-					})
-				);
 				return;
 			}
 
@@ -209,15 +202,6 @@ export function Timeline() {
 			const deltaTime = e.timeStamp - downTime;
 
 			if (deltaX > 5 || deltaY > 5 || deltaTime > 500) {
-				console.log(
-					JSON.stringify({
-						ignoredDragNotClick: true,
-						deltaX,
-						deltaY,
-						deltaTime,
-						timeStamp: e.timeStamp,
-					})
-				);
 				return;
 			}
 
@@ -241,9 +225,6 @@ export function Timeline() {
 				clearSelectedElements();
 				return;
 			}
-
-			// Clear selected elements when clicking empty timeline area
-			console.log(JSON.stringify({ clearingSelectedElements: true }));
 			clearSelectedElements();
 
 			// Determine if we're clicking in ruler or tracks area
@@ -259,7 +240,9 @@ export function Timeline() {
 				const rulerContent = rulerScrollRef.current?.querySelector(
 					"[data-radix-scroll-area-viewport]"
 				) as HTMLElement;
-				if (!rulerContent) return;
+				if (!rulerContent) {
+					return;
+				}
 				const rect = rulerContent.getBoundingClientRect();
 				mouseX = e.clientX - rect.left;
 				scrollLeft = rulerContent.scrollLeft;
@@ -268,7 +251,9 @@ export function Timeline() {
 				const tracksContent = tracksScrollRef.current?.querySelector(
 					"[data-radix-scroll-area-viewport]"
 				) as HTMLElement;
-				if (!tracksContent) return;
+				if (!tracksContent) {
+					return;
+				}
 				const rect = tracksContent.getBoundingClientRect();
 				mouseX = e.clientX - rect.left;
 				scrollLeft = tracksContent.scrollLeft;
@@ -293,11 +278,10 @@ export function Timeline() {
 			duration,
 			zoomLevel,
 			seek,
-			rulerScrollRef,
-			tracksScrollRef,
 			clearSelectedElements,
 			isSelecting,
 			justFinishedSelecting,
+			activeProject?.fps,
 		]
 	);
 
@@ -305,7 +289,7 @@ export function Timeline() {
 	useEffect(() => {
 		const totalDuration = getTotalDuration();
 		setDuration(Math.max(totalDuration, 10)); // Minimum 10 seconds for empty timeline
-	}, [tracks, setDuration, getTotalDuration]);
+	}, [setDuration, getTotalDuration]);
 
 	// Old marquee system removed - using new SelectionBox component instead
 
@@ -374,8 +358,7 @@ export function Timeline() {
 
 					useTimelineStore.getState().addMediaToNewTrack(mediaItem);
 				}
-			} catch (error) {
-				console.error("Error parsing dropped item data:", error);
+			} catch (_error) {
 				toast.error("Failed to add item to timeline");
 			}
 		} else if (e.dataTransfer.files?.length > 0) {
@@ -403,9 +386,7 @@ export function Timeline() {
 						useTimelineStore.getState().addMediaToNewTrack(addedItem);
 					}
 				}
-			} catch (error) {
-				// Show error if file processing fails
-				console.error("Error processing external files:", error);
+			} catch (_error) {
 				toast.error("Failed to process dropped files");
 			} finally {
 				setIsProcessing(false);
@@ -433,12 +414,16 @@ export function Timeline() {
 			"[data-radix-scroll-area-viewport]"
 		) as HTMLElement;
 
-		if (!(rulerViewport && tracksViewport)) return;
+		if (!(rulerViewport && tracksViewport)) {
+			return;
+		}
 
 		// Horizontal scroll synchronization between ruler and tracks
 		const handleRulerScroll = () => {
 			const now = Date.now();
-			if (isUpdatingRef.current || now - lastRulerSync.current < 16) return;
+			if (isUpdatingRef.current || now - lastRulerSync.current < 16) {
+				return;
+			}
 			lastRulerSync.current = now;
 			isUpdatingRef.current = true;
 			tracksViewport.scrollLeft = rulerViewport.scrollLeft;
@@ -446,7 +431,9 @@ export function Timeline() {
 		};
 		const handleTracksScroll = () => {
 			const now = Date.now();
-			if (isUpdatingRef.current || now - lastTracksSync.current < 16) return;
+			if (isUpdatingRef.current || now - lastTracksSync.current < 16) {
+				return;
+			}
 			lastTracksSync.current = now;
 			isUpdatingRef.current = true;
 			rulerViewport.scrollLeft = tracksViewport.scrollLeft;
@@ -460,8 +447,9 @@ export function Timeline() {
 		if (trackLabelsViewport) {
 			const handleTrackLabelsScroll = () => {
 				const now = Date.now();
-				if (isUpdatingRef.current || now - lastVerticalSync.current < 16)
+				if (isUpdatingRef.current || now - lastVerticalSync.current < 16) {
 					return;
+				}
 				lastVerticalSync.current = now;
 				isUpdatingRef.current = true;
 				tracksViewport.scrollTop = trackLabelsViewport.scrollTop;
@@ -469,8 +457,9 @@ export function Timeline() {
 			};
 			const handleTracksVerticalScroll = () => {
 				const now = Date.now();
-				if (isUpdatingRef.current || now - lastVerticalSync.current < 16)
+				if (isUpdatingRef.current || now - lastVerticalSync.current < 16) {
 					return;
+				}
 				lastVerticalSync.current = now;
 				isUpdatingRef.current = true;
 				trackLabelsViewport.scrollTop = tracksViewport.scrollTop;
@@ -579,12 +568,24 @@ export function Timeline() {
 									const getTimeInterval = (zoom: number) => {
 										const pixelsPerSecond =
 											TIMELINE_CONSTANTS.PIXELS_PER_SECOND * zoom;
-										if (pixelsPerSecond >= 200) return 0.1; // Every 0.1s when very zoomed in
-										if (pixelsPerSecond >= 100) return 0.5; // Every 0.5s when zoomed in
-										if (pixelsPerSecond >= 50) return 1; // Every 1s at normal zoom
-										if (pixelsPerSecond >= 25) return 2; // Every 2s when zoomed out
-										if (pixelsPerSecond >= 12) return 5; // Every 5s when more zoomed out
-										if (pixelsPerSecond >= 6) return 10; // Every 10s when very zoomed out
+										if (pixelsPerSecond >= 200) {
+											return 0.1; // Every 0.1s when very zoomed in
+										}
+										if (pixelsPerSecond >= 100) {
+											return 0.5; // Every 0.5s when zoomed in
+										}
+										if (pixelsPerSecond >= 50) {
+											return 1; // Every 1s at normal zoom
+										}
+										if (pixelsPerSecond >= 25) {
+											return 2; // Every 2s when zoomed out
+										}
+										if (pixelsPerSecond >= 12) {
+											return 5; // Every 5s when more zoomed out
+										}
+										if (pixelsPerSecond >= 6) {
+											return 10; // Every 10s when very zoomed out
+										}
 										return 30; // Every 30s when extremely zoomed out
 									};
 
@@ -593,7 +594,9 @@ export function Timeline() {
 
 									return Array.from({ length: markerCount }, (_, i) => {
 										const time = i * interval;
-										if (time > duration) return null;
+										if (time > duration) {
+											return null;
+										}
 
 										const isMainMarker =
 											time % (interval >= 1 ? Math.max(1, interval) : 1) === 0;
@@ -717,47 +720,43 @@ export function Timeline() {
 								{tracks.length === 0 ? (
 									<div />
 								) : (
-									<>
-										{tracks.map((track, index) => (
-											<ContextMenu key={track.id}>
-												<ContextMenuTrigger asChild>
-													<div
-														className="absolute right-0 left-0 border-muted/30 border-b py-[0.05rem]"
-														onClick={(e) => {
-															// If clicking empty area (not on a element), deselect all elements
-															if (
-																!(e.target as HTMLElement).closest(
-																	".timeline-element"
-																)
-															) {
-																clearSelectedElements();
-															}
-														}}
-														style={{
-															top: `${getCumulativeHeightBefore(tracks, index)}px`,
-															height: `${getTrackHeight(track.type)}px`,
-														}}
-													>
-														<TimelineTrackContent
-															onSnapPointChange={handleSnapPointChange}
-															track={track}
-															zoomLevel={zoomLevel}
-														/>
-													</div>
-												</ContextMenuTrigger>
-												<ContextMenuContent>
-													<ContextMenuItem
-														onClick={() => toggleTrackMute(track.id)}
-													>
-														{track.muted ? "Unmute Track" : "Mute Track"}
-													</ContextMenuItem>
-													<ContextMenuItem>
-														Track settings (soon)
-													</ContextMenuItem>
-												</ContextMenuContent>
-											</ContextMenu>
-										))}
-									</>
+									tracks.map((track, index) => (
+										<ContextMenu key={track.id}>
+											<ContextMenuTrigger asChild>
+												<div
+													className="absolute right-0 left-0 border-muted/30 border-b py-[0.05rem]"
+													onClick={(e) => {
+														// If clicking empty area (not on a element), deselect all elements
+														if (
+															!(e.target as HTMLElement).closest(
+																".timeline-element"
+															)
+														) {
+															clearSelectedElements();
+														}
+													}}
+													style={{
+														top: `${getCumulativeHeightBefore(tracks, index)}px`,
+														height: `${getTrackHeight(track.type)}px`,
+													}}
+												>
+													<TimelineTrackContent
+														onSnapPointChange={handleSnapPointChange}
+														track={track}
+														zoomLevel={zoomLevel}
+													/>
+												</div>
+											</ContextMenuTrigger>
+											<ContextMenuContent>
+												<ContextMenuItem
+													onClick={() => toggleTrackMute(track.id)}
+												>
+													{track.muted ? "Unmute Track" : "Mute Track"}
+												</ContextMenuItem>
+												<ContextMenuItem>Track settings (soon)</ContextMenuItem>
+											</ContextMenuContent>
+										</ContextMenu>
+									))
 								)}
 							</div>
 						</ScrollArea>
@@ -812,7 +811,9 @@ function TimelineToolbar({
 
 	// Action handlers
 	const handleSplitSelected = () => {
-		if (selectedElements.length === 0) return;
+		if (selectedElements.length === 0) {
+			return;
+		}
 		let splitCount = 0;
 		selectedElements.forEach(({ trackId, elementId }) => {
 			const track = tracks.find((t) => t.id === trackId);
@@ -824,7 +825,9 @@ function TimelineToolbar({
 					(element.duration - element.trimStart - element.trimEnd);
 				if (currentTime > effectiveStart && currentTime < effectiveEnd) {
 					const newElementId = splitElement(trackId, elementId, currentTime);
-					if (newElementId) splitCount++;
+					if (newElementId) {
+						splitCount++;
+					}
 				}
 			}
 		});
@@ -834,9 +837,13 @@ function TimelineToolbar({
 	};
 
 	const handleDuplicateSelected = () => {
-		if (selectedElements.length === 0) return;
+		if (selectedElements.length === 0) {
+			return;
+		}
 		const canDuplicate = selectedElements.length === 1;
-		if (!canDuplicate) return;
+		if (!canDuplicate) {
+			return;
+		}
 
 		selectedElements.forEach(({ trackId, elementId }) => {
 			const track = tracks.find((t) => t.id === trackId);
@@ -868,7 +875,9 @@ function TimelineToolbar({
 		const { trackId, elementId } = selectedElements[0];
 		const track = tracks.find((t) => t.id === trackId);
 		const element = track?.elements.find((c) => c.id === elementId);
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 		const effectiveStart = element.startTime;
 		const effectiveEnd =
 			element.startTime +
@@ -888,7 +897,9 @@ function TimelineToolbar({
 		const { trackId, elementId } = selectedElements[0];
 		const track = tracks.find((t) => t.id === trackId);
 		const element = track?.elements.find((c) => c.id === elementId);
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 		const effectiveStart = element.startTime;
 		const effectiveEnd =
 			element.startTime +
@@ -915,7 +926,9 @@ function TimelineToolbar({
 	};
 
 	const handleDeleteSelected = () => {
-		if (selectedElements.length === 0) return;
+		if (selectedElements.length === 0) {
+			return;
+		}
 		selectedElements.forEach(({ trackId, elementId }) => {
 			if (rippleEditingEnabled) {
 				removeElementFromTrackWithRipple(trackId, elementId);

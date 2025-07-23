@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { useActionHandler } from "@/constants/actions";
 import { usePlaybackStore } from "@/stores/playback-store";

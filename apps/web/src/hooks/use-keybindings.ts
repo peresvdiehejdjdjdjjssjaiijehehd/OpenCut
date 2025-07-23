@@ -14,13 +14,19 @@ export function useKeybindingsListener() {
 	useEffect(() => {
 		const handleKeyDown = (ev: KeyboardEvent) => {
 			// Do not check keybinds if the mode is disabled
-			if (!keybindingsEnabled) return;
+			if (!keybindingsEnabled) {
+				return;
+			}
 
 			const binding = getKeybindingString(ev);
-			if (!binding) return;
+			if (!binding) {
+				return;
+			}
 
 			const boundAction = keybindings[binding];
-			if (!boundAction) return;
+			if (!boundAction) {
+				return;
+			}
 
 			ev.preventDefault();
 

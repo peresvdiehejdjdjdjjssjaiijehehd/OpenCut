@@ -1,10 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import {
-	getTotalTracksHeight,
-	TIMELINE_CONSTANTS,
-} from "@/constants/timeline-constants";
+import { TIMELINE_CONSTANTS } from "@/constants/timeline-constants";
 import { useTimelinePlayhead } from "@/hooks/use-timeline-playhead";
 import type { TimelineTrack } from "@/types/timeline";
 

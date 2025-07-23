@@ -18,14 +18,12 @@ export function EditorHeader() {
 	const [newName, setNewName] = useState(activeProject?.name || "");
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const handleExport = () => {
-		// TODO: Implement export functionality
-		// NOTE: This is already being worked on
-		console.log("Export project");
-	};
+	const handleExport = () => {};
 
 	const handleNameClick = () => {
-		if (!activeProject) return;
+		if (!activeProject) {
+			return;
+		}
 		setNewName(activeProject.name);
 		setIsEditing(true);
 	};
@@ -34,8 +32,7 @@ export function EditorHeader() {
 		if (activeProject && newName.trim() && newName !== activeProject.name) {
 			try {
 				await renameProject(activeProject.id, newName.trim());
-			} catch (error) {
-				console.error("Failed to rename project:", error);
+			} catch (_error) {
 				setNewName(activeProject.name);
 			}
 		}
@@ -43,8 +40,11 @@ export function EditorHeader() {
 	};
 
 	const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter") handleNameSave();
-		else if (e.key === "Escape") setIsEditing(false);
+		if (e.key === "Enter") {
+			handleNameSave();
+		} else if (e.key === "Escape") {
+			setIsEditing(false);
+		}
 	};
 
 	const leftContent = (

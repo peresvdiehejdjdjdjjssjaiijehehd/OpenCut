@@ -9,16 +9,14 @@ import { RiDiscordFill, RiTwitterXLine } from "react-icons/ri";
 import { getStars } from "@/lib/fetch-github-stars";
 
 export function Footer() {
-	const [star, setStar] = useState<string>();
+	const [_star, setStar] = useState<string>();
 
 	useEffect(() => {
 		const fetchStars = async () => {
 			try {
 				const data = await getStars();
 				setStar(data);
-			} catch (err) {
-				console.error("Failed to fetch GitHub stars", err);
-			}
+			} catch (_err) {}
 		};
 
 		fetchStars();

@@ -33,7 +33,9 @@ export function AudioPlayer({
 	// Sync playback events
 	useEffect(() => {
 		const audio = audioRef.current;
-		if (!(audio && isInClipRange)) return;
+		if (!(audio && isInClipRange)) {
+			return;
+		}
 
 		const handleSeekEvent = (e: CustomEvent) => {
 			// Always update audio time, even if outside clip range
@@ -94,7 +96,9 @@ export function AudioPlayer({
 	// Sync playback state
 	useEffect(() => {
 		const audio = audioRef.current;
-		if (!audio) return;
+		if (!audio) {
+			return;
+		}
 
 		if (isPlaying && isInClipRange && !trackMuted) {
 			audio.play().catch(() => {});
@@ -106,7 +110,9 @@ export function AudioPlayer({
 	// Sync volume and speed
 	useEffect(() => {
 		const audio = audioRef.current;
-		if (!audio) return;
+		if (!audio) {
+			return;
+		}
 
 		audio.volume = volume;
 		audio.muted = muted || trackMuted;

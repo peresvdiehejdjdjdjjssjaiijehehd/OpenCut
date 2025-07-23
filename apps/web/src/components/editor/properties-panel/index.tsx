@@ -26,7 +26,7 @@ export function PropertiesPanel() {
 
 	const handleFpsChange = (value: string) => {
 		const fps = Number.parseFloat(value);
-		if (!isNaN(fps) && fps > 0) {
+		if (!Number.isNaN(fps) && fps > 0) {
 			updateProjectFps(fps);
 		}
 	};

@@ -1,17 +1,6 @@
 "use client";
 
-import {
-	ChevronLeft,
-	ChevronRight,
-	Copy,
-	MoreVertical,
-	Music,
-	RefreshCw,
-	Scissors,
-	SplitSquareHorizontal,
-	Trash2,
-	Type,
-} from "lucide-react";
+import { Copy, RefreshCw, Scissors, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -23,8 +12,7 @@ import { useTimelineElementResize } from "@/hooks/use-timeline-element-resize";
 import { useMediaStore } from "@/stores/media-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 import { useTimelineStore } from "@/stores/timeline-store";
-import { type TimelineElementProps, TrackType } from "@/types/timeline";
-import { Button } from "../../ui/button";
+import type { TimelineElementProps } from "@/types/timeline";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -32,16 +20,6 @@ import {
 	ContextMenuSeparator,
 	ContextMenuTrigger,
 } from "../../ui/context-menu";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
 import AudioWaveform from "../audio-waveform";
 
 export function TimelineElement({
@@ -69,7 +47,7 @@ export function TimelineElement({
 	} = useTimelineStore();
 	const { currentTime } = usePlaybackStore();
 
-	const [elementMenuOpen, setElementMenuOpen] = useState(false);
+	const [_elementMenuOpen, _setElementMenuOpen] = useState(false);
 
 	const {
 		resizing,
@@ -122,7 +100,7 @@ export function TimelineElement({
 		const { id, ...elementWithoutId } = element;
 		addElementToTrack(track.id, {
 			...elementWithoutId,
-			name: element.name + " (copy)",
+			name: `${element.name} (copy)`,
 			startTime:
 				element.startTime +
 				(element.duration - element.trimStart - element.trimEnd) +
@@ -150,7 +128,9 @@ export function TimelineElement({
 		input.accept = "video/*,audio/*,image/*";
 		input.onchange = async (e) => {
 			const file = (e.target as HTMLInputElement).files?.[0];
-			if (!file) return;
+			if (!file) {
+				return;
+			}
 
 			try {
 				const success = await replaceElementMedia(track.id, element.id, file);
@@ -159,11 +139,8 @@ export function TimelineElement({
 				} else {
 					toast.error("Failed to replace clip");
 				}
-			} catch (error) {
+			} catch (_error) {
 				toast.error("Failed to replace clip");
-				console.log(
-					JSON.stringify({ error: "Failed to replace clip", details: error })
-				);
 			}
 		};
 		input.click();
@@ -234,8 +211,8 @@ export function TimelineElement({
 			);
 		}
 
-		const VIDEO_TILE_PADDING = 16;
-		const OVERLAY_SPACE_MULTIPLIER = 1.5;
+		const _VIDEO_TILE_PADDING = 16;
+		const _OVERLAY_SPACE_MULTIPLIER = 1.5;
 
 		if (mediaItem.type === "video" && mediaItem.thumbnailUrl) {
 			const trackHeight = getTrackHeight(track.type);
@@ -329,10 +306,8 @@ export function TimelineElement({
 						)} ${isSelected ? "border-foreground border-t-[0.5px] border-b-[0.5px]" : ""} ${
 							isBeingDragged ? "z-50" : "z-10"
 						}`}
-						onClick={(e) => onElementClick && onElementClick(e, element)}
-						onContextMenu={(e) =>
-							onElementMouseDown && onElementMouseDown(e, element)
-						}
+						onClick={(e) => onElementClick?.(e, element)}
+						onContextMenu={(e) => onElementMouseDown?.(e, element)}
 						onMouseDown={handleElementMouseDown}
 					>
 						<div className="absolute inset-0 flex h-full items-center">

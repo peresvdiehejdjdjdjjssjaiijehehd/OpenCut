@@ -4,7 +4,9 @@ import { toBlobURL } from "@ffmpeg/util";
 let ffmpeg: FFmpeg | null = null;
 
 export const initFFmpeg = async (): Promise<FFmpeg> => {
-	if (ffmpeg) return ffmpeg;
+	if (ffmpeg) {
+		return ffmpeg;
+	}
 
 	ffmpeg = new FFmpeg();
 
@@ -132,17 +134,18 @@ export const getVideoInfo = async (
 	let ffmpegOutput = "";
 	let listening = true;
 	const listener = (data: string) => {
-		if (listening) ffmpegOutput += data;
+		if (listening) {
+			ffmpegOutput += data;
+		}
 	};
 	ffmpeg.on("log", ({ message }) => listener(message));
 
 	// Run ffmpeg to get info (stderr will contain the info)
 	try {
 		await ffmpeg.exec(["-i", inputName, "-f", "null", "-"]);
-	} catch (error) {
+	} catch (_error) {
 		listening = false;
 		await ffmpeg.deleteFile(inputName);
-		console.error("FFmpeg execution failed:", error);
 		throw new Error(
 			"Failed to extract video info. The file may be corrupted or in an unsupported format."
 		);
@@ -163,8 +166,8 @@ export const getVideoInfo = async (
 	if (durationMatch) {
 		const [, h, m, s] = durationMatch;
 		duration =
-			Number.parseInt(h) * 3600 +
-			Number.parseInt(m) * 60 +
+			Number.parseInt(h, 10) * 3600 +
+			Number.parseInt(m, 10) * 60 +
 			Number.parseFloat(s);
 	}
 
@@ -175,8 +178,8 @@ export const getVideoInfo = async (
 		height = 0,
 		fps = 0;
 	if (videoStreamMatch) {
-		width = Number.parseInt(videoStreamMatch[1]);
-		height = Number.parseInt(videoStreamMatch[2]);
+		width = Number.parseInt(videoStreamMatch[1], 10);
+		height = Number.parseInt(videoStreamMatch[2], 10);
 		fps = Number.parseFloat(videoStreamMatch[3]);
 	}
 

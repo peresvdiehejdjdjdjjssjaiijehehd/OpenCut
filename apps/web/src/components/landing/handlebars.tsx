@@ -40,7 +40,9 @@ export function Handlebars({
 	const measureRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (!measureRef.current) return;
+		if (!measureRef.current) {
+			return;
+		}
 
 		const measureContent = () => {
 			if (measureRef.current) {
@@ -56,7 +58,7 @@ export function Handlebars({
 		const timer = setTimeout(measureContent, 50);
 
 		return () => clearTimeout(timer);
-	}, [children, rightHandleX]);
+	}, [rightHandleX]);
 
 	useEffect(() => {
 		leftHandleX.set(leftHandle);
@@ -70,7 +72,7 @@ export function Handlebars({
 		onRangeChange?.(leftHandle, rightHandle);
 	}, [leftHandle, rightHandle, onRangeChange]);
 
-	const handleLeftDrag = (event: any, info: PanInfo) => {
+	const handleLeftDrag = (_event: any, info: PanInfo) => {
 		const newLeft = Math.max(
 			0,
 			Math.min(leftHandle + info.offset.x, rightHandle - minWidth)
@@ -78,7 +80,7 @@ export function Handlebars({
 		setLeftHandle(newLeft);
 	};
 
-	const handleRightDrag = (event: any, info: PanInfo) => {
+	const handleRightDrag = (_event: any, info: PanInfo) => {
 		const newRight = Math.max(
 			leftHandle + minWidth,
 			Math.min(contentWidth, rightHandle + info.offset.x)

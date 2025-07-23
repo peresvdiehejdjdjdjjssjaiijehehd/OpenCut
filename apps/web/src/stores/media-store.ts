@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { storageService } from "@/lib/storage/storage-service";
 import { generateUUID } from "@/lib/utils";
-import { useTimelineStore } from "./timeline-store";
 
 export type MediaType = "image" | "video" | "audio";
 
@@ -174,8 +173,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 		// Save to persistent storage in background
 		try {
 			await storageService.saveMediaItem(projectId, newItem);
-		} catch (error) {
-			console.error("Failed to save media item:", error);
+		} catch (_error) {
 			// Remove from local state if save failed
 			set((state) => ({
 				mediaItems: state.mediaItems.filter((media) => media.id !== newItem.id),
@@ -188,7 +186,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 		const item = state.mediaItems.find((media) => media.id === id);
 
 		// Cleanup object URLs to prevent memory leaks
-		if (item && item.url) {
+		if (item?.url) {
 			URL.revokeObjectURL(item.url);
 			if (item.thumbnailUrl) {
 				URL.revokeObjectURL(item.thumbnailUrl);
@@ -203,9 +201,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 		// Remove from persistent storage
 		try {
 			await storageService.deleteMediaItem(projectId, id);
-		} catch (error) {
-			console.error("Failed to delete media item:", error);
-		}
+		} catch (_error) {}
 	},
 
 	loadProjectMedia: async (projectId) => {
@@ -227,11 +223,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 								width: width || item.width,
 								height: height || item.height,
 							};
-						} catch (error) {
-							console.error(
-								`Failed to regenerate thumbnail for video ${item.id}:`,
-								error
-							);
+						} catch (_error) {
 							return item;
 						}
 					}
@@ -240,8 +232,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 			);
 
 			set({ mediaItems: updatedMediaItems });
-		} catch (error) {
-			console.error("Failed to load media items:", error);
+		} catch (_error) {
 		} finally {
 			set({ isLoading: false });
 		}
@@ -269,9 +260,7 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
 			await Promise.all(
 				mediaIds.map((id) => storageService.deleteMediaItem(projectId, id))
 			);
-		} catch (error) {
-			console.error("Failed to clear media items from storage:", error);
-		}
+		} catch (_error) {}
 	},
 
 	clearAllMedia: () => {

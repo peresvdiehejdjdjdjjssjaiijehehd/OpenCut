@@ -1,6 +1,6 @@
+import crypto from "node:crypto";
 import { db, eq, waitlist } from "@opencut/db";
 import { checkBotId } from "botid/server";
-import crypto from "crypto";
 import { nanoid } from "nanoid";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -17,20 +17,30 @@ const TOKEN_EXPIRY = 60 * 60 * 1000;
 
 async function validateCSRFToken(request: NextRequest): Promise<boolean> {
 	const clientToken = request.headers.get("x-csrf-token");
-	if (!clientToken) return false;
+	if (!clientToken) {
+		return false;
+	}
 
 	const cookieStore = await cookies();
 	const cookieValue = cookieStore.get(CSRF_TOKEN_NAME)?.value;
-	if (!cookieValue) return false;
+	if (!cookieValue) {
+		return false;
+	}
 
 	const [token, timestamp, signature] = cookieValue.split(":");
-	if (!(token && timestamp && signature)) return false;
+	if (!(token && timestamp && signature)) {
+		return false;
+	}
 
-	if (clientToken !== token) return false;
+	if (clientToken !== token) {
+		return false;
+	}
 
 	const now = Date.now();
-	const tokenTime = Number.parseInt(timestamp);
-	if (now - tokenTime > TOKEN_EXPIRY) return false;
+	const tokenTime = Number.parseInt(timestamp, 10);
+	if (now - tokenTime > TOKEN_EXPIRY) {
+		return false;
+	}
 
 	const expectedSignature = crypto
 		.createHmac("sha256", env.BETTER_AUTH_SECRET)
@@ -95,8 +105,6 @@ export async function POST(request: NextRequest) {
 			const firstError = error.errors[0];
 			return NextResponse.json({ error: firstError.message }, { status: 400 });
 		}
-
-		console.error("Waitlist signup error:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
 			{ status: 500 }

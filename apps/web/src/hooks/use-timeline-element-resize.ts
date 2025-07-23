@@ -42,7 +42,9 @@ export function useTimelineElementResize({
 
 	// Set up document-level mouse listeners during resize (like proper drag behavior)
 	useEffect(() => {
-		if (!resizing) return;
+		if (!resizing) {
+			return;
+		}
 
 		const handleDocumentMouseMove = (e: MouseEvent) => {
 			updateTrimFromMouseMove({ clientX: e.clientX });
@@ -60,7 +62,7 @@ export function useTimelineElementResize({
 			document.removeEventListener("mousemove", handleDocumentMouseMove);
 			document.removeEventListener("mouseup", handleDocumentMouseUp);
 		};
-	}, [resizing]); // Re-run when resizing state changes
+	}, [resizing, handleResizeEnd, updateTrimFromMouseMove]); // Re-run when resizing state changes
 
 	const handleResizeStart = (
 		e: React.MouseEvent,
@@ -91,7 +93,9 @@ export function useTimelineElementResize({
 		// Media elements - check the media type
 		if (element.type === "media") {
 			const mediaItem = mediaItems.find((item) => item.id === element.mediaId);
-			if (!mediaItem) return false;
+			if (!mediaItem) {
+				return false;
+			}
 
 			// Images can be extended (static content)
 			if (mediaItem.type === "image") {
@@ -107,7 +111,9 @@ export function useTimelineElementResize({
 	};
 
 	const updateTrimFromMouseMove = (e: { clientX: number }) => {
-		if (!resizing) return;
+		if (!resizing) {
+			return;
+		}
 
 		const deltaX = e.clientX - resizing.startX;
 		// Reasonable sensitivity for resize operations - similar to timeline scale

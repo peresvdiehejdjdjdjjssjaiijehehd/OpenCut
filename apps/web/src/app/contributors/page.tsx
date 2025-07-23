@@ -43,7 +43,6 @@ async function getContributors(): Promise<Contributor[]> {
 		);
 
 		if (!response.ok) {
-			console.error("Failed to fetch contributors");
 			return [];
 		}
 
@@ -54,8 +53,7 @@ async function getContributors(): Promise<Contributor[]> {
 		);
 
 		return filteredContributors;
-	} catch (error) {
-		console.error("Error fetching contributors:", error);
+	} catch (_error) {
 		return [];
 	}
 }
@@ -123,7 +121,7 @@ export default async function ContributorsPage() {
 								</div>
 
 								<div className="mx-auto flex max-w-4xl flex-col justify-center gap-6 md:flex-row">
-									{topContributors.map((contributor, index) => (
+									{topContributors.map((contributor, _index) => (
 										<Link
 											className="group block flex-1"
 											href={contributor.html_url}

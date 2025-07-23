@@ -22,14 +22,16 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
 		let mounted = true;
 
 		const initWaveSurfer = async () => {
-			if (!(waveformRef.current && audioUrl)) return;
+			if (!(waveformRef.current && audioUrl)) {
+				return;
+			}
 
 			try {
 				// Clean up any existing instance
 				if (wavesurfer.current) {
 					try {
 						wavesurfer.current.destroy();
-					} catch (e) {
+					} catch (_e) {
 						// Silently ignore destroy errors
 					}
 					wavesurfer.current = null;
@@ -55,8 +57,7 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
 					}
 				});
 
-				wavesurfer.current.on("error", (err) => {
-					console.error("WaveSurfer error:", err);
+				wavesurfer.current.on("error", (_err) => {
 					if (mounted) {
 						setError(true);
 						setIsLoading(false);
@@ -64,8 +65,7 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
 				});
 
 				await wavesurfer.current.load(audioUrl);
-			} catch (err) {
-				console.error("Failed to initialize WaveSurfer:", err);
+			} catch (_err) {
 				if (mounted) {
 					setError(true);
 					setIsLoading(false);
@@ -80,7 +80,7 @@ const AudioWaveform: React.FC<AudioWaveformProps> = ({
 			if (wavesurfer.current) {
 				try {
 					wavesurfer.current.destroy();
-				} catch (e) {
+				} catch (_e) {
 					// Silently ignore destroy errors
 				}
 				wavesurfer.current = null;

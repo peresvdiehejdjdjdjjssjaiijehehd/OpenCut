@@ -9,7 +9,9 @@ interface PlaybackStore extends PlaybackState, PlaybackControls {
 let playbackTimer: number | null = null;
 
 const startTimer = (store: () => PlaybackStore) => {
-	if (playbackTimer) cancelAnimationFrame(playbackTimer);
+	if (playbackTimer) {
+		cancelAnimationFrame(playbackTimer);
+	}
 
 	// Use requestAnimationFrame for smoother updates
 	const updateTime = () => {

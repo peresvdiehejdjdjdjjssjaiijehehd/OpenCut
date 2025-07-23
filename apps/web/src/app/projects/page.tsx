@@ -91,7 +91,6 @@ export default function ProjectsPage() {
 
 	const handleCreateProject = async () => {
 		const projectId = await createNewProject("New Project");
-		console.log("projectId", projectId);
 		router.push(`/editor/${projectId}`);
 	};
 

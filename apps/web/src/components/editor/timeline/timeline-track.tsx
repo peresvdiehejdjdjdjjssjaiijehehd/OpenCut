@@ -20,9 +20,7 @@ import type {
 } from "@/types/timeline";
 import {
 	canElementGoOnTrack,
-	ensureMainTrack,
 	getMainTrack,
-	sortTracksByOrder,
 	type TimelineTrack,
 } from "@/types/timeline";
 import { TimelineElement } from "./timeline-element";
@@ -114,7 +112,7 @@ export function TimelineTrackContent({
 
 	const timelineRef = useRef<HTMLDivElement>(null);
 	const [isDropping, setIsDropping] = useState(false);
-	const [dropPosition, setDropPosition] = useState<number | null>(null);
+	const [_dropPosition, setDropPosition] = useState<number | null>(null);
 	const [wouldOverlap, setWouldOverlap] = useState(false);
 	const dragCounterRef = useRef(0);
 	const [mouseDownLocation, setMouseDownLocation] = useState<{
@@ -124,10 +122,14 @@ export function TimelineTrackContent({
 
 	// Set up mouse event listeners for drag
 	useEffect(() => {
-		if (!dragState.isDragging) return;
+		if (!dragState.isDragging) {
+			return;
+		}
 
 		const handleMouseMove = (e: MouseEvent) => {
-			if (!timelineRef.current) return;
+			if (!timelineRef.current) {
+				return;
+			}
 
 			// On first mouse move during drag, ensure the element is selected
 			if (dragState.elementId && dragState.trackId) {
@@ -218,7 +220,9 @@ export function TimelineTrackContent({
 		};
 
 		const handleMouseUp = (e: MouseEvent) => {
-			if (!(dragState.elementId && dragState.trackId)) return;
+			if (!(dragState.elementId && dragState.trackId)) {
+				return;
+			}
 
 			// If this track initiated the drag, we should handle the mouse up regardless of where it occurs
 			const isTrackThatStartedDrag = dragState.trackId === track.id;
@@ -249,7 +253,9 @@ export function TimelineTrackContent({
 			const isMouseOverThisTrack =
 				e.clientY >= timelineRect.top && e.clientY <= timelineRect.bottom;
 
-			if (!(isMouseOverThisTrack || isTrackThatStartedDrag)) return;
+			if (!(isMouseOverThisTrack || isTrackThatStartedDrag)) {
+				return;
+			}
 
 			const finalTime = dragState.currentTime;
 
@@ -394,6 +400,12 @@ export function TimelineTrackContent({
 		selectedElements,
 		selectElement,
 		onSnapPointChange,
+		currentTime,
+		rippleEditingEnabled,
+		snapElementEdge,
+		snappingEnabled,
+		track.elements.some,
+		updateElementStartTimeWithRipple,
 	]);
 
 	const handleElementMouseDown = (
@@ -488,7 +500,9 @@ export function TimelineTrackContent({
 			"application/x-media-item"
 		);
 
-		if (!(hasTimelineElement || hasMediaItem)) return;
+		if (!(hasTimelineElement || hasMediaItem)) {
+			return;
+		}
 
 		// Calculate drop position for overlap checking
 		const trackContainer = e.currentTarget.querySelector(
@@ -557,7 +571,7 @@ export function TimelineTrackContent({
 						}
 					}
 				}
-			} catch (error) {
+			} catch (_error) {
 				// Continue with default behavior
 			}
 		} else if (hasTimelineElement) {
@@ -588,8 +602,12 @@ export function TimelineTrackContent({
 						const movingElementEnd = snappedTime + movingElementDuration;
 
 						wouldOverlap = track.elements.some((existingElement) => {
-							if (fromTrackId === track.id && existingElement.id === elementId)
+							if (
+								fromTrackId === track.id &&
+								existingElement.id === elementId
+							) {
 								return false;
+							}
 
 							const existingStart = existingElement.startTime;
 							const existingEnd =
@@ -603,7 +621,7 @@ export function TimelineTrackContent({
 						});
 					}
 				}
-			} catch (error) {
+			} catch (_error) {
 				// Continue with default behavior
 			}
 		}
@@ -632,7 +650,9 @@ export function TimelineTrackContent({
 			"application/x-media-item"
 		);
 
-		if (!(hasTimelineElement || hasMediaItem)) return;
+		if (!(hasTimelineElement || hasMediaItem)) {
+			return;
+		}
 
 		dragCounterRef.current++;
 		setIsDropping(true);
@@ -648,7 +668,9 @@ export function TimelineTrackContent({
 			"application/x-media-item"
 		);
 
-		if (!(hasTimelineElement || hasMediaItem)) return;
+		if (!(hasTimelineElement || hasMediaItem)) {
+			return;
+		}
 
 		dragCounterRef.current--;
 
@@ -663,16 +685,6 @@ export function TimelineTrackContent({
 		e.preventDefault();
 		e.stopPropagation();
 
-		// Debug logging
-		console.log(
-			JSON.stringify({
-				message: "Drop event started in timeline track",
-				dataTransferTypes: Array.from(e.dataTransfer.types),
-				trackId: track.id,
-				trackType: track.type,
-			})
-		);
-
 		// Reset all drag states
 		dragCounterRef.current = 0;
 		setIsDropping(false);
@@ -685,12 +697,16 @@ export function TimelineTrackContent({
 			"application/x-media-item"
 		);
 
-		if (!(hasTimelineElement || hasMediaItem)) return;
+		if (!(hasTimelineElement || hasMediaItem)) {
+			return;
+		}
 
 		const trackContainer = e.currentTarget.querySelector(
 			".track-elements-container"
 		) as HTMLElement;
-		if (!trackContainer) return;
+		if (!trackContainer) {
+			return;
+		}
 
 		const rect = trackContainer.getBoundingClientRect();
 		const mouseX = Math.max(0, e.clientX - rect.left);
@@ -699,7 +715,7 @@ export function TimelineTrackContent({
 			mouseX / (TIMELINE_CONSTANTS.PIXELS_PER_SECOND * zoomLevel);
 		const projectStore = useProjectStore.getState();
 		const projectFps = projectStore.activeProject?.fps || 30;
-		const snappedTime = snapTimeToFrame(newStartTime, projectFps);
+		const _snappedTime = snapTimeToFrame(newStartTime, projectFps);
 
 		// Calculate drop position relative to tracks
 		const currentTrackIndex = tracks.findIndex((t) => t.id === track.id);
@@ -720,7 +736,9 @@ export function TimelineTrackContent({
 				const timelineElementData = e.dataTransfer.getData(
 					"application/x-timeline-element"
 				);
-				if (!timelineElementData) return;
+				if (!timelineElementData) {
+					return;
+				}
 
 				const {
 					elementId,
@@ -759,8 +777,9 @@ export function TimelineTrackContent({
 
 				const hasOverlap = track.elements.some((existingElement) => {
 					// Skip the element being moved if it's on the same track
-					if (fromTrackId === track.id && existingElement.id === elementId)
+					if (fromTrackId === track.id && existingElement.id === elementId) {
 						return false;
+					}
 
 					const existingStart = existingElement.startTime;
 					const existingEnd =
@@ -813,7 +832,9 @@ export function TimelineTrackContent({
 				const mediaItemData = e.dataTransfer.getData(
 					"application/x-media-item"
 				);
-				if (!mediaItemData) return;
+				if (!mediaItemData) {
+					return;
+				}
 
 				const dragData: DragData = JSON.parse(mediaItemData);
 
@@ -850,7 +871,9 @@ export function TimelineTrackContent({
 						const newTargetTrack = updatedTracks.find(
 							(t) => t.id === targetTrackId
 						);
-						if (!newTargetTrack) return;
+						if (!newTargetTrack) {
+							return;
+						}
 						targetTrack = newTargetTrack;
 					}
 
@@ -940,7 +963,9 @@ export function TimelineTrackContent({
 								const newTargetTrack = updatedTracks.find(
 									(t) => t.id === targetTrackId
 								);
-								if (!newTargetTrack) return;
+								if (!newTargetTrack) {
+									return;
+								}
 								targetTrack = newTargetTrack;
 							} else if (
 								mainTrack.elements.length === 0 &&
@@ -970,7 +995,9 @@ export function TimelineTrackContent({
 								const newTargetTrack = updatedTracks.find(
 									(t) => t.id === targetTrackId
 								);
-								if (!newTargetTrack) return;
+								if (!newTargetTrack) {
+									return;
+								}
 								targetTrack = newTargetTrack;
 							}
 						} else if (isAudio) {
@@ -999,12 +1026,16 @@ export function TimelineTrackContent({
 							const newTargetTrack = updatedTracks.find(
 								(t) => t.id === targetTrackId
 							);
-							if (!newTargetTrack) return;
+							if (!newTargetTrack) {
+								return;
+							}
 							targetTrack = newTargetTrack;
 						}
 					}
 
-					if (!targetTrack) return;
+					if (!targetTrack) {
+						return;
+					}
 
 					// Check for overlaps with existing elements in target track
 					const newElementDuration = mediaItem.duration || 5;
@@ -1046,8 +1077,7 @@ export function TimelineTrackContent({
 					});
 				}
 			}
-		} catch (error) {
-			console.error("Error handling drop:", error);
+		} catch (_error) {
 			toast.error("Failed to add media to track");
 		}
 	};
@@ -1087,66 +1117,64 @@ export function TimelineTrackContent({
 							: ""}
 					</div>
 				) : (
-					<>
-						{track.elements.map((element) => {
-							const isSelected = selectedElements.some(
-								(c) => c.trackId === track.id && c.elementId === element.id
-							);
+					track.elements.map((element) => {
+						const isSelected = selectedElements.some(
+							(c) => c.trackId === track.id && c.elementId === element.id
+						);
 
-							const handleElementSplit = () => {
-								const { currentTime } = usePlaybackStore();
-								const { splitElement } = useTimelineStore();
-								const splitTime = currentTime;
-								const effectiveStart = element.startTime;
-								const effectiveEnd =
-									element.startTime +
-									(element.duration - element.trimStart - element.trimEnd);
+						const _handleElementSplit = () => {
+							const { currentTime } = usePlaybackStore();
+							const { splitElement } = useTimelineStore();
+							const splitTime = currentTime;
+							const effectiveStart = element.startTime;
+							const effectiveEnd =
+								element.startTime +
+								(element.duration - element.trimStart - element.trimEnd);
 
-								if (splitTime > effectiveStart && splitTime < effectiveEnd) {
-									const secondElementId = splitElement(
-										track.id,
-										element.id,
-										splitTime
-									);
-									if (!secondElementId) {
-										toast.error("Failed to split element");
-									}
-								} else {
-									toast.error("Playhead must be within element to split");
+							if (splitTime > effectiveStart && splitTime < effectiveEnd) {
+								const secondElementId = splitElement(
+									track.id,
+									element.id,
+									splitTime
+								);
+								if (!secondElementId) {
+									toast.error("Failed to split element");
 								}
-							};
+							} else {
+								toast.error("Playhead must be within element to split");
+							}
+						};
 
-							const handleElementDuplicate = () => {
-								const { addElementToTrack } = useTimelineStore.getState();
-								const { id, ...elementWithoutId } = element;
-								addElementToTrack(track.id, {
-									...elementWithoutId,
-									name: element.name + " (copy)",
-									startTime:
-										element.startTime +
-										(element.duration - element.trimStart - element.trimEnd) +
-										0.1,
-								});
-							};
+						const _handleElementDuplicate = () => {
+							const { addElementToTrack } = useTimelineStore.getState();
+							const { id, ...elementWithoutId } = element;
+							addElementToTrack(track.id, {
+								...elementWithoutId,
+								name: `${element.name} (copy)`,
+								startTime:
+									element.startTime +
+									(element.duration - element.trimStart - element.trimEnd) +
+									0.1,
+							});
+						};
 
-							const handleElementDelete = () => {
-								const { removeElementFromTrack } = useTimelineStore.getState();
-								removeElementFromTrack(track.id, element.id);
-							};
+						const _handleElementDelete = () => {
+							const { removeElementFromTrack } = useTimelineStore.getState();
+							removeElementFromTrack(track.id, element.id);
+						};
 
-							return (
-								<TimelineElement
-									element={element}
-									isSelected={isSelected}
-									key={element.id}
-									onElementClick={handleElementClick}
-									onElementMouseDown={handleElementMouseDown}
-									track={track}
-									zoomLevel={zoomLevel}
-								/>
-							);
-						})}
-					</>
+						return (
+							<TimelineElement
+								element={element}
+								isSelected={isSelected}
+								key={element.id}
+								onElementClick={handleElementClick}
+								onElementMouseDown={handleElementMouseDown}
+								track={track}
+								zoomLevel={zoomLevel}
+							/>
+						);
+					})
 				)}
 			</div>
 		</div>

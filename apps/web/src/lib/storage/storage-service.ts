@@ -71,7 +71,9 @@ class StorageService {
 	async loadProject(id: string): Promise<TProject | null> {
 		const serializedProject = await this.projectsAdapter.get(id);
 
-		if (!serializedProject) return null;
+		if (!serializedProject) {
+			return null;
+		}
 
 		// Convert back to TProject format
 		return {
@@ -142,7 +144,9 @@ class StorageService {
 			mediaMetadataAdapter.get(id),
 		]);
 
-		if (!(file && metadata)) return null;
+		if (!(file && metadata)) {
+			return null;
+		}
 
 		// Create new object URL for the file
 		const url = URL.createObjectURL(file);

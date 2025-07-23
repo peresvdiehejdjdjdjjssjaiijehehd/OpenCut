@@ -97,7 +97,9 @@ export function frameToTime(frame: number, fps: number): number {
 }
 
 export function snapTimeToFrame(time: number, fps: number): number {
-	if (fps <= 0) return time; // Fallback for invalid FPS
+	if (fps <= 0) {
+		return time; // Fallback for invalid FPS
+	}
 	const frame = timeToFrame(time, fps);
 	return frameToTime(frame, fps);
 }

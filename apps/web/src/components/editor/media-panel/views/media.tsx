@@ -36,7 +36,9 @@ export function MediaView() {
 	const [mediaFilter, setMediaFilter] = useState("all");
 
 	const processFiles = async (files: FileList | File[]) => {
-		if (!files || files.length === 0) return;
+		if (!files || files.length === 0) {
+			return;
+		}
 		if (!activeProject) {
 			toast.error("No active project");
 			return;
@@ -53,9 +55,7 @@ export function MediaView() {
 			for (const item of processedItems) {
 				await addMediaItem(activeProject.id, item);
 			}
-		} catch (error) {
-			// Show error toast if processing fails
-			console.error("Error processing files:", error);
+		} catch (_error) {
 			toast.error("Failed to process files");
 		} finally {
 			setIsProcessing(false);
@@ -72,7 +72,9 @@ export function MediaView() {
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		// When files are selected via file picker, process them
-		if (e.target.files) processFiles(e.target.files);
+		if (e.target.files) {
+			processFiles(e.target.files);
+		}
 		e.target.value = ""; // Reset input
 	};
 

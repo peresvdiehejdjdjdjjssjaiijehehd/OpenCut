@@ -59,7 +59,7 @@ export function TextProperties({
 							className="!text-xs h-7 w-12 rounded-sm text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 							onChange={(e) =>
 								updateTextElement(trackId, element.id, {
-									fontSize: Number.parseInt(e.target.value),
+									fontSize: Number.parseInt(e.target.value, 10),
 								})
 							}
 							type="number"

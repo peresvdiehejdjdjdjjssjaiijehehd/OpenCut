@@ -89,9 +89,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			} else {
 				throw new Error(`Project with id ${id} not found`);
 			}
-		} catch (error) {
-			console.error("Failed to load project:", error);
-			throw error; // Re-throw so the editor page can handle it
 		} finally {
 			set({ isLoading: false });
 		}
@@ -99,7 +96,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
 	saveCurrentProject: async () => {
 		const { activeProject } = get();
-		if (!activeProject) return;
+		if (!activeProject) {
+			return;
+		}
 
 		try {
 			// Save project metadata and timeline data in parallel
@@ -109,9 +108,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 				timelineStore.saveProjectTimeline(activeProject.id),
 			]);
 			await get().loadAllProjects(); // Refresh the list
-		} catch (error) {
-			console.error("Failed to save project:", error);
-		}
+		} catch (_error) {}
 	},
 
 	loadAllProjects: async () => {
@@ -122,8 +119,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 		try {
 			const projects = await storageService.loadAllProjects();
 			set({ savedProjects: projects });
-		} catch (error) {
-			console.error("Failed to load projects:", error);
+		} catch (_error) {
 		} finally {
 			set({ isLoading: false, isInitialized: true });
 		}
@@ -148,9 +144,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 				mediaStore.clearAllMedia();
 				timelineStore.clearTimeline();
 			}
-		} catch (error) {
-			console.error("Failed to delete project:", error);
-		}
+		} catch (_error) {}
 	},
 
 	closeProject: () => {
@@ -193,7 +187,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 				set({ activeProject: updatedProject });
 			}
 		} catch (error) {
-			console.error("Failed to rename project:", error);
 			toast.error("Failed to rename project", {
 				description:
 					error instanceof Error ? error.message : "Please try again",
@@ -241,7 +234,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			await get().loadAllProjects();
 			return newProject.id;
 		} catch (error) {
-			console.error("Failed to duplicate project:", error);
 			toast.error("Failed to duplicate project", {
 				description:
 					error instanceof Error ? error.message : "Please try again",
@@ -252,7 +244,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
 	updateProjectBackground: async (backgroundColor: string) => {
 		const { activeProject } = get();
-		if (!activeProject) return;
+		if (!activeProject) {
+			return;
+		}
 
 		const updatedProject = {
 			...activeProject,
@@ -264,8 +258,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			await storageService.saveProject(updatedProject);
 			set({ activeProject: updatedProject });
 			await get().loadAllProjects(); // Refresh the list
-		} catch (error) {
-			console.error("Failed to update project background:", error);
+		} catch (_error) {
 			toast.error("Failed to update background", {
 				description: "Please try again",
 			});
@@ -277,7 +270,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 		options?: { backgroundColor?: string; blurIntensity?: number }
 	) => {
 		const { activeProject } = get();
-		if (!activeProject) return;
+		if (!activeProject) {
+			return;
+		}
 
 		const updatedProject = {
 			...activeProject,
@@ -293,8 +288,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			await storageService.saveProject(updatedProject);
 			set({ activeProject: updatedProject });
 			await get().loadAllProjects(); // Refresh the list
-		} catch (error) {
-			console.error("Failed to update background type:", error);
+		} catch (_error) {
 			toast.error("Failed to update background", {
 				description: "Please try again",
 			});
@@ -303,7 +297,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
 	updateProjectFps: async (fps: number) => {
 		const { activeProject } = get();
-		if (!activeProject) return;
+		if (!activeProject) {
+			return;
+		}
 
 		const updatedProject = {
 			...activeProject,
@@ -315,8 +311,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			await storageService.saveProject(updatedProject);
 			set({ activeProject: updatedProject });
 			await get().loadAllProjects(); // Refresh the list
-		} catch (error) {
-			console.error("Failed to update project FPS:", error);
+		} catch (_error) {
 			toast.error("Failed to update project FPS", {
 				description: "Please try again",
 			});
@@ -336,22 +331,31 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 			const [key, order] = sortOption.split("-");
 
 			if (key !== "createdAt" && key !== "name") {
-				console.warn(`Invalid sort key: ${key}`);
 				return 0;
 			}
 
 			const aValue = a[key];
 			const bValue = b[key];
 
-			if (aValue === undefined || bValue === undefined) return 0;
-
-			if (order === "asc") {
-				if (aValue < bValue) return -1;
-				if (aValue > bValue) return 1;
+			if (aValue === undefined || bValue === undefined) {
 				return 0;
 			}
-			if (aValue > bValue) return -1;
-			if (aValue < bValue) return 1;
+
+			if (order === "asc") {
+				if (aValue < bValue) {
+					return -1;
+				}
+				if (aValue > bValue) {
+					return 1;
+				}
+				return 0;
+			}
+			if (aValue > bValue) {
+				return -1;
+			}
+			if (aValue < bValue) {
+				return 1;
+			}
 			return 0;
 		});
 

@@ -18,7 +18,9 @@ export function SelectionBox({
 	const selectionBoxRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (!(isActive && startPos && currentPos && containerRef.current)) return;
+		if (!(isActive && startPos && currentPos && containerRef.current)) {
+			return;
+		}
 
 		const container = containerRef.current;
 		const containerRect = container.getBoundingClientRect();
@@ -44,7 +46,9 @@ export function SelectionBox({
 		}
 	}, [startPos, currentPos, isActive, containerRef]);
 
-	if (!(isActive && startPos && currentPos)) return null;
+	if (!(isActive && startPos && currentPos)) {
+		return null;
+	}
 
 	return (
 		<div

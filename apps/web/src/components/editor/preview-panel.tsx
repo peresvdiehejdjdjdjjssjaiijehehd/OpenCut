@@ -46,7 +46,9 @@ export function PreviewPanel() {
 
 	useEffect(() => {
 		const updatePreviewSize = () => {
-			if (!containerRef.current) return;
+			if (!containerRef.current) {
+				return;
+			}
 
 			let availableWidth, availableHeight;
 
@@ -190,7 +192,9 @@ export function PreviewPanel() {
 		const backgroundElement = blurBackgroundElements[0];
 		const { element, mediaItem } = backgroundElement;
 
-		if (!mediaItem) return null;
+		if (!mediaItem) {
+			return null;
+		}
 
 		const blurIntensity = activeProject.blurIntensity || 8;
 
@@ -459,7 +463,9 @@ function FullscreenToolbar({
 	const progress = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
 
 	const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (!hasAnyElements) return;
+		if (!hasAnyElements) {
+			return;
+		}
 		const rect = e.currentTarget.getBoundingClientRect();
 		const clickX = e.clientX - rect.left;
 		const percentage = Math.max(0, Math.min(1, clickX / rect.width));
@@ -468,7 +474,9 @@ function FullscreenToolbar({
 	};
 
 	const handleTimelineDrag = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (!hasAnyElements) return;
+		if (!hasAnyElements) {
+			return;
+		}
 		e.preventDefault();
 		e.stopPropagation();
 		const rect = e.currentTarget.getBoundingClientRect();

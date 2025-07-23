@@ -29,9 +29,9 @@ export function useTimelineSnapping({
 	const findSnapPoints = useCallback(
 		(
 			tracks: TimelineTrack[],
-			currentTime: number,
+			_currentTime: number,
 			playheadTime: number,
-			zoomLevel: number,
+			_zoomLevel: number,
 			excludeElementId?: string
 		): SnapPoint[] => {
 			const snapPoints: SnapPoint[] = [];
@@ -41,7 +41,9 @@ export function useTimelineSnapping({
 				tracks.forEach((track) => {
 					track.elements.forEach((element) => {
 						// Skip the element being dragged
-						if (element.id === excludeElementId) return;
+						if (element.id === excludeElementId) {
+							return;
+						}
 
 						const elementStart = element.startTime;
 						const elementEnd =
@@ -161,7 +163,7 @@ export function useTimelineSnapping({
 
 			// Adjust the snapped time back for end edge
 			if (!snapToStart && snapResult.snapPoint) {
-				snapResult.snappedTime = snapResult.snappedTime - elementDuration;
+				snapResult.snappedTime -= elementDuration;
 			}
 
 			return snapResult;

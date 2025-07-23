@@ -77,7 +77,7 @@ function Title({ title }: { title: string }) {
 	return <h2 className="font-bold text-lg md:text-xl">{title}</h2>;
 }
 
-function Subtitle({ subtitle }: { subtitle: string }) {
+function _Subtitle({ subtitle }: { subtitle: string }) {
 	return <h3 className="font-medium text-lg">{subtitle}</h3>;
 }
 

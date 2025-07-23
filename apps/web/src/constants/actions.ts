@@ -102,7 +102,7 @@ type ActionFunc<A extends Action> = A extends ActionWithArgs
 	: (_?: undefined, trigger?: InvocationTriggers) => void;
 
 type BoundActionList = {
-	[A in Action]?: Array<ActionFunc<A>>;
+	[A in Action]?: ActionFunc<A>[];
 };
 
 const boundActions: BoundActionList = {};

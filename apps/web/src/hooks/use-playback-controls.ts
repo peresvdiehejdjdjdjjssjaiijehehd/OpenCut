@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import { usePlaybackStore } from "@/stores/playback-store";
 import { useTimelineStore } from "@/stores/timeline-store";
@@ -15,7 +15,7 @@ export const usePlaybackControls = () => {
 		separateAudio,
 	} = useTimelineStore();
 
-	const handleSplitSelectedElement = useCallback(() => {
+	const _handleSplitSelectedElement = useCallback(() => {
 		if (selectedElements.length !== 1) {
 			toast.error("Select exactly one element to split");
 			return;
@@ -25,7 +25,9 @@ export const usePlaybackControls = () => {
 		const track = tracks.find((t) => t.id === trackId);
 		const element = track?.elements.find((e) => e.id === elementId);
 
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 
 		const effectiveStart = element.startTime;
 		const effectiveEnd =
@@ -40,7 +42,7 @@ export const usePlaybackControls = () => {
 		splitElement(trackId, elementId, currentTime);
 	}, [selectedElements, tracks, currentTime, splitElement]);
 
-	const handleSplitAndKeepLeftCallback = useCallback(() => {
+	const _handleSplitAndKeepLeftCallback = useCallback(() => {
 		if (selectedElements.length !== 1) {
 			toast.error("Select exactly one element");
 			return;
@@ -50,7 +52,9 @@ export const usePlaybackControls = () => {
 		const track = tracks.find((t) => t.id === trackId);
 		const element = track?.elements.find((e) => e.id === elementId);
 
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 
 		const effectiveStart = element.startTime;
 		const effectiveEnd =
@@ -65,7 +69,7 @@ export const usePlaybackControls = () => {
 		splitAndKeepLeft(trackId, elementId, currentTime);
 	}, [selectedElements, tracks, currentTime, splitAndKeepLeft]);
 
-	const handleSplitAndKeepRightCallback = useCallback(() => {
+	const _handleSplitAndKeepRightCallback = useCallback(() => {
 		if (selectedElements.length !== 1) {
 			toast.error("Select exactly one element");
 			return;
@@ -75,7 +79,9 @@ export const usePlaybackControls = () => {
 		const track = tracks.find((t) => t.id === trackId);
 		const element = track?.elements.find((e) => e.id === elementId);
 
-		if (!element) return;
+		if (!element) {
+			return;
+		}
 
 		const effectiveStart = element.startTime;
 		const effectiveEnd =
@@ -90,7 +96,7 @@ export const usePlaybackControls = () => {
 		splitAndKeepRight(trackId, elementId, currentTime);
 	}, [selectedElements, tracks, currentTime, splitAndKeepRight]);
 
-	const handleSeparateAudioCallback = useCallback(() => {
+	const _handleSeparateAudioCallback = useCallback(() => {
 		if (selectedElements.length !== 1) {
 			toast.error("Select exactly one media element to separate audio");
 			return;

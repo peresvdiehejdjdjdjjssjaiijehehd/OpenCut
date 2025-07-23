@@ -42,17 +42,21 @@ export function useTimelinePlayhead({
 			setIsScrubbing(true);
 			handleScrub(e);
 		},
-		[duration, zoomLevel]
+		[handleScrub]
 	);
 
 	// Ruler mouse down handler
 	const handleRulerMouseDown = useCallback(
 		(e: React.MouseEvent) => {
 			// Only handle left mouse button
-			if (e.button !== 0) return;
+			if (e.button !== 0) {
+				return;
+			}
 
 			// Don't interfere if clicking on the playhead itself
-			if (playheadRef?.current?.contains(e.target as Node)) return;
+			if (playheadRef?.current?.contains(e.target as Node)) {
+				return;
+			}
 
 			e.preventDefault();
 			setIsDraggingRuler(true);
@@ -62,13 +66,15 @@ export function useTimelinePlayhead({
 			setIsScrubbing(true);
 			handleScrub(e);
 		},
-		[duration, zoomLevel]
+		[handleScrub, playheadRef?.current?.contains]
 	);
 
 	const handleScrub = useCallback(
 		(e: MouseEvent | React.MouseEvent) => {
 			const ruler = rulerRef.current;
-			if (!ruler) return;
+			if (!ruler) {
+				return;
+			}
 			const rect = ruler.getBoundingClientRect();
 			const x = e.clientX - rect.left;
 			const rawTime = Math.max(0, Math.min(duration, x / (50 * zoomLevel)));
@@ -84,7 +90,9 @@ export function useTimelinePlayhead({
 
 	// Mouse move/up event handlers
 	useEffect(() => {
-		if (!isScrubbing) return;
+		if (!isScrubbing) {
+			return;
+		}
 		const onMouseMove = (e: MouseEvent) => {
 			handleScrub(e);
 			// Mark that we've dragged if ruler drag is active
@@ -94,7 +102,9 @@ export function useTimelinePlayhead({
 		};
 		const onMouseUp = (e: MouseEvent) => {
 			setIsScrubbing(false);
-			if (scrubTime !== null) seek(scrubTime); // finalize seek
+			if (scrubTime !== null) {
+				seek(scrubTime); // finalize seek
+			}
 			setScrubTime(null);
 
 			// Handle ruler click vs drag
@@ -130,7 +140,9 @@ export function useTimelinePlayhead({
 		const tracksViewport = tracksScrollRef.current?.querySelector(
 			"[data-radix-scroll-area-viewport]"
 		) as HTMLElement;
-		if (!(rulerViewport && tracksViewport)) return;
+		if (!(rulerViewport && tracksViewport)) {
+			return;
+		}
 		const playheadPx = playheadPosition * 50 * zoomLevel; // TIMELINE_CONSTANTS.PIXELS_PER_SECOND = 50
 		const viewportWidth = rulerViewport.clientWidth;
 		const scrollMin = 0;
@@ -146,7 +158,7 @@ export function useTimelinePlayhead({
 		) {
 			rulerViewport.scrollLeft = tracksViewport.scrollLeft = desiredScroll;
 		}
-	}, [playheadPosition, duration, zoomLevel, rulerScrollRef, tracksScrollRef]);
+	}, [playheadPosition, zoomLevel, rulerScrollRef, tracksScrollRef]);
 
 	return {
 		playheadPosition,

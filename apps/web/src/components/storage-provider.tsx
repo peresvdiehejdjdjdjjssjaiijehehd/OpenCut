@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { storageService } from "@/lib/storage/storage-service";
-import { useMediaStore } from "@/stores/media-store";
 import { useProjectStore } from "@/stores/project-store";
 
 interface StorageContextType {
@@ -61,7 +60,6 @@ export function StorageProvider({ children }: StorageProviderProps) {
 					error: null,
 				});
 			} catch (error) {
-				console.error("Failed to initialize storage:", error);
 				setStatus({
 					isInitialized: false,
 					isLoading: false,

@@ -224,9 +224,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 		if (activeProject) {
 			try {
 				await storageService.saveTimeline(activeProject.id, get()._tracks);
-			} catch (error) {
-				console.error("Failed to auto-save timeline:", error);
-			}
+			} catch (_error) {}
 		}
 	};
 
@@ -268,8 +266,10 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
 		undo: () => {
 			const { history, redoStack, _tracks } = get();
-			if (history.length === 0) return;
-			const prev = history[history.length - 1];
+			if (history.length === 0) {
+				return;
+			}
+			const prev = history.at(-1);
 			updateTracksAndSave(prev);
 			set({
 				history: history.slice(0, -1),
@@ -383,7 +383,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const { _tracks } = get();
 			const trackToRemove = _tracks.find((t) => t.id === trackId);
 
-			if (!trackToRemove) return;
+			if (!trackToRemove) {
+				return;
+			}
 
 			get().pushHistory();
 
@@ -419,7 +421,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 						duration: range.endTime - range.startTime,
 					});
 				} else {
-					const lastRange = mergedRanges[mergedRanges.length - 1];
+					const lastRange = mergedRanges.at(-1);
 					if (range.startTime <= lastRange.endTime) {
 						// Overlapping or adjacent ranges, merge them
 						lastRange.endTime = Math.max(lastRange.endTime, range.endTime);
@@ -476,26 +478,22 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			// Validate element type matches track type
 			const track = get()._tracks.find((t) => t.id === trackId);
 			if (!track) {
-				console.error("Track not found:", trackId);
 				return;
 			}
 
 			// Use utility function for validation
 			const validation = validateElementTrackCompatibility(elementData, track);
 			if (!validation.isValid) {
-				console.error(validation.errorMessage);
 				return;
 			}
 
 			// For media elements, validate mediaId exists
 			if (elementData.type === "media" && !elementData.mediaId) {
-				console.error("Media element must have mediaId");
 				return;
 			}
 
 			// For text elements, validate required text properties
 			if (elementData.type === "text" && !elementData.content) {
-				console.error("Text element must have content");
 				return;
 			}
 
@@ -589,7 +587,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((e) => e.id === elementId);
 
-			if (!(element && track)) return;
+			if (!(element && track)) {
+				return;
+			}
 
 			get().pushHistory();
 
@@ -658,7 +658,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				(element) => element.id === elementId
 			);
 
-			if (!(elementToMove && toTrack)) return;
+			if (!(elementToMove && toTrack)) {
+				return;
+			}
 
 			// Validate element type compatibility with target track
 			const validation = validateElementTrackCompatibility(
@@ -666,7 +668,6 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				toTrack
 			);
 			if (!validation.isValid) {
-				console.error(validation.errorMessage);
 				return;
 			}
 
@@ -700,7 +701,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			trimEnd,
 			pushHistory = true
 		) => {
-			if (pushHistory) get().pushHistory();
+			if (pushHistory) {
+				get().pushHistory();
+			}
 			updateTracksAndSave(
 				get()._tracks.map((track) =>
 					track.id === trackId
@@ -723,7 +726,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			duration,
 			pushHistory = true
 		) => {
-			if (pushHistory) get().pushHistory();
+			if (pushHistory) {
+				get().pushHistory();
+			}
 			updateTracksAndSave(
 				get()._tracks.map((track) =>
 					track.id === trackId
@@ -744,7 +749,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			startTime,
 			pushHistory = true
 		) => {
-			if (pushHistory) get().pushHistory();
+			if (pushHistory) {
+				get().pushHistory();
+			}
 			updateTracksAndSave(
 				get()._tracks.map((track) =>
 					track.id === trackId
@@ -771,7 +778,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((e) => e.id === elementId);
 
-			if (!(element && track)) return;
+			if (!(element && track)) {
+				return;
+			}
 
 			get().pushHistory();
 
@@ -801,7 +810,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
 					// For ripple editing, we need to move elements that come after the moved element
 					const currentElementStart = currentElement.startTime;
-					const currentElementEnd =
+					const _currentElementEnd =
 						currentElement.startTime +
 						(currentElement.duration -
 							currentElement.trimStart -
@@ -880,14 +889,18 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((c) => c.id === elementId);
 
-			if (!element) return null;
+			if (!element) {
+				return null;
+			}
 
 			const effectiveStart = element.startTime;
 			const effectiveEnd =
 				element.startTime +
 				(element.duration - element.trimStart - element.trimEnd);
 
-			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) return null;
+			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) {
+				return null;
+			}
 
 			get().pushHistory();
 
@@ -935,14 +948,18 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((c) => c.id === elementId);
 
-			if (!element) return;
+			if (!element) {
+				return;
+			}
 
 			const effectiveStart = element.startTime;
 			const effectiveEnd =
 				element.startTime +
 				(element.duration - element.trimStart - element.trimEnd);
 
-			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) return;
+			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) {
+				return;
+			}
 
 			get().pushHistory();
 
@@ -976,14 +993,18 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((c) => c.id === elementId);
 
-			if (!element) return;
+			if (!element) {
+				return;
+			}
 
 			const effectiveStart = element.startTime;
 			const effectiveEnd =
 				element.startTime +
 				(element.duration - element.trimStart - element.trimEnd);
 
-			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) return;
+			if (splitTime <= effectiveStart || splitTime >= effectiveEnd) {
+				return;
+			}
 
 			get().pushHistory();
 
@@ -1016,7 +1037,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((c) => c.id === elementId);
 
-			if (!element || track?.type !== "media") return null;
+			if (!element || track?.type !== "media") {
+				return null;
+			}
 
 			get().pushHistory();
 
@@ -1071,13 +1094,17 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 			const track = _tracks.find((t) => t.id === trackId);
 			const element = track?.elements.find((c) => c.id === elementId);
 
-			if (!element || element.type !== "media") return false;
+			if (!element || element.type !== "media") {
+				return false;
+			}
 
 			try {
 				const mediaStore = useMediaStore.getState();
 				const projectStore = useProjectStore.getState();
 
-				if (!projectStore.activeProject) return false;
+				if (!projectStore.activeProject) {
+					return false;
+				}
 
 				// Import required media processing functions
 				const {
@@ -1088,7 +1115,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				} = await import("./media-store");
 
 				const fileType = getFileType(newFile);
-				if (!fileType) return false;
+				if (!fileType) {
+					return false;
+				}
 
 				// Process the new media file
 				const mediaData: any = {
@@ -1123,7 +1152,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 					(item) => item.file === newFile
 				);
 
-				if (!newMediaItem) return false;
+				if (!newMediaItem) {
+					return false;
+				}
 
 				get().pushHistory();
 
@@ -1150,20 +1181,16 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				);
 
 				return true;
-			} catch (error) {
-				console.log(
-					JSON.stringify({
-						error: "Failed to replace element media",
-						details: error,
-					})
-				);
+			} catch (_error) {
 				return false;
 			}
 		},
 
 		getTotalDuration: () => {
 			const { _tracks } = get();
-			if (_tracks.length === 0) return 0;
+			if (_tracks.length === 0) {
+				return 0;
+			}
 
 			const trackEndTimes = _tracks.map((track) =>
 				track.elements.reduce((maxEnd, element) => {
@@ -1184,19 +1211,25 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				const tracks = await storageService.loadTimeline(projectId);
 				const mediaItems = await storageService.loadAllMediaItems(projectId);
 
-				if (!(tracks && mediaItems.length)) return null;
+				if (!(tracks && mediaItems.length)) {
+					return null;
+				}
 
 				const firstMediaElement = tracks
 					.flatMap((track) => track.elements)
 					.filter((element) => element.type === "media")
 					.sort((a, b) => a.startTime - b.startTime)[0];
 
-				if (!firstMediaElement) return null;
+				if (!firstMediaElement) {
+					return null;
+				}
 
 				const mediaItem = mediaItems.find(
 					(item) => item.id === firstMediaElement.mediaId
 				);
-				if (!mediaItem) return null;
+				if (!mediaItem) {
+					return null;
+				}
 
 				if (mediaItem.type === "video" && mediaItem.file) {
 					const { generateVideoThumbnail } = await import(
@@ -1210,16 +1243,17 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				}
 
 				return null;
-			} catch (error) {
-				console.error("Failed to get project thumbnail:", error);
+			} catch (_error) {
 				return null;
 			}
 		},
 
 		redo: () => {
 			const { redoStack } = get();
-			if (redoStack.length === 0) return;
-			const next = redoStack[redoStack.length - 1];
+			if (redoStack.length === 0) {
+				return;
+			}
+			const next = redoStack.at(-1);
 			updateTracksAndSave(next);
 			set({ redoStack: redoStack.slice(0, -1) });
 		},
@@ -1295,8 +1329,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 				}
 				// Clear history when loading a project
 				set({ history: [], redoStack: [] });
-			} catch (error) {
-				console.error("Failed to load timeline:", error);
+			} catch (_error) {
 				// Initialize with default on error
 				const defaultTracks = ensureMainTrack([]);
 				updateTracks(defaultTracks);
@@ -1307,9 +1340,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 		saveProjectTimeline: async (projectId) => {
 			try {
 				await storageService.saveTimeline(projectId, get()._tracks);
-			} catch (error) {
-				console.error("Failed to save timeline:", error);
-			}
+			} catch (_error) {}
 		},
 
 		clearTimeline: () => {
@@ -1332,7 +1363,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
 		checkElementOverlap: (trackId, startTime, duration, excludeElementId) => {
 			const track = get()._tracks.find((t) => t.id === trackId);
-			if (!track) return false;
+			if (!track) {
+				return false;
+			}
 
 			const overlap = track.elements.some((element) => {
 				const elementEnd =

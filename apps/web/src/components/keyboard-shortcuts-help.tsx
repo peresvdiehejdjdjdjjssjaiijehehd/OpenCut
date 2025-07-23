@@ -32,7 +32,9 @@ const modifier: {
 };
 
 function getKeyWithModifier(key: string) {
-	if (key === "Ctrl") return getPlatformSpecialKey();
+	if (key === "Ctrl") {
+		return getPlatformSpecialKey();
+	}
 	return modifier[key] || key;
 }
 
@@ -50,8 +52,9 @@ const ShortcutItem = ({
 		if (
 			key.includes("Cmd") &&
 			shortcut.keys.includes(key.replace("Cmd", "Ctrl"))
-		)
+		) {
 			return false;
+		}
 
 		return true;
 	});
@@ -152,7 +155,9 @@ export const KeyboardShortcutsHelp = () => {
 	const categories = Array.from(new Set(shortcuts.map((s) => s.category)));
 
 	useEffect(() => {
-		if (!(recordingKey && recordingShortcut)) return;
+		if (!(recordingKey && recordingShortcut)) {
+			return;
+		}
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			e.preventDefault();
@@ -186,7 +191,7 @@ export const KeyboardShortcutsHelp = () => {
 			}
 		};
 
-		const handleClickOutside = (e: MouseEvent) => {
+		const handleClickOutside = (_e: MouseEvent) => {
 			setRecordingKey(null);
 			setRecordingShortcut(null);
 		};

@@ -63,7 +63,7 @@ const findBestCanvasPreset = (aspectRatio: number): CanvasSize => {
 	return { width: bestMatch.width, height: bestMatch.height };
 };
 
-export const useEditorStore = create<EditorState>((set, get) => ({
+export const useEditorStore = create<EditorState>((set, _get) => ({
 	// Initial states
 	isInitializing: true,
 	isPanelsReady: false,
@@ -81,11 +81,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 	},
 
 	initializeApp: async () => {
-		console.log("Initializing video editor...");
 		set({ isInitializing: true, isPanelsReady: false });
 
 		set({ isPanelsReady: true, isInitializing: false });
-		console.log("Video editor ready");
 	},
 
 	setCanvasSize: (size) => {

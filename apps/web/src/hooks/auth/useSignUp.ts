@@ -40,7 +40,7 @@ export function useSignUp() {
 			});
 
 			router.push("/editor");
-		} catch (error) {
+		} catch (_error) {
 			setError("Failed to sign up with Google. Please try again.");
 			setIsGoogleLoading(false);
 		}

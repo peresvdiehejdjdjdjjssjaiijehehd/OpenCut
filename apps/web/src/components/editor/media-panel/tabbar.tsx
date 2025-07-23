@@ -46,7 +46,9 @@ export function TabBar() {
 	// We're using useEffect because we need to sync with external DOM scroll events
 	useEffect(() => {
 		const container = scrollContainerRef.current;
-		if (!container) return;
+		if (!container) {
+			return;
+		}
 
 		checkScrollPosition();
 		container.addEventListener("scroll", checkScrollPosition);
@@ -58,7 +60,7 @@ export function TabBar() {
 			container.removeEventListener("scroll", checkScrollPosition);
 			resizeObserver.disconnect();
 		};
-	}, []);
+	}, [checkScrollPosition]);
 
 	return (
 		<div className="flex">
@@ -106,7 +108,9 @@ function ScrollButton({
 	onClick: () => void;
 	isVisible: boolean;
 }) {
-	if (!isVisible) return null;
+	if (!isVisible) {
+		return null;
+	}
 
 	const Icon = direction === "left" ? ChevronLeft : ChevronRight;
 

@@ -52,11 +52,7 @@ export async function processMediaFiles(
 
 					// Generate thumbnail using FFmpeg
 					thumbnailUrl = await generateThumbnail(file, 1);
-				} catch (error) {
-					console.warn(
-						"FFmpeg processing failed, falling back to basic processing:",
-						error
-					);
+				} catch (_error) {
 					// Fallback to basic processing
 					const videoResult = await generateVideoThumbnail(file);
 					thumbnailUrl = videoResult.thumbnailUrl;
@@ -90,8 +86,7 @@ export async function processMediaFiles(
 				const percent = Math.round((completed / total) * 100);
 				onProgress(percent);
 			}
-		} catch (error) {
-			console.error("Error processing file:", file.name, error);
+		} catch (_error) {
 			toast.error(`Failed to process ${file.name}`);
 			URL.revokeObjectURL(url); // Clean up on error
 		}

@@ -29,7 +29,9 @@ export function useSelectionBox({
 	// Mouse down handler to start selection
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
-			if (!isEnabled) return;
+			if (!isEnabled) {
+				return;
+			}
 
 			// Only start selection on empty space clicks
 			if ((e.target as HTMLElement).closest(".timeline-element")) {
@@ -58,7 +60,9 @@ export function useSelectionBox({
 	// Function to select elements within the selection box
 	const selectElementsInBox = useCallback(
 		(startPos: { x: number; y: number }, endPos: { x: number; y: number }) => {
-			if (!containerRef.current) return;
+			if (!containerRef.current) {
+				return;
+			}
 
 			const container = containerRef.current;
 			const containerRect = container.getBoundingClientRect();
@@ -69,7 +73,7 @@ export function useSelectionBox({
 			const endX = endPos.x - containerRect.left;
 			const endY = endPos.y - containerRect.top;
 
-			const selectionRect = {
+			const _selectionRect = {
 				left: Math.min(startX, endX),
 				top: Math.min(startY, endY),
 				right: Math.max(startX, endX),
@@ -122,11 +126,6 @@ export function useSelectionBox({
 					selectedElements.push({ trackId, elementId });
 				}
 			});
-
-			// Always call the callback - with elements or empty array to clear selection
-			console.log(
-				JSON.stringify({ selectElementsInBox: selectedElements.length })
-			);
 			onSelectionComplete(selectedElements);
 		},
 		[containerRef, onSelectionComplete]
@@ -134,7 +133,9 @@ export function useSelectionBox({
 
 	// Effect to track selection box movement
 	useEffect(() => {
-		if (!selectionBox) return;
+		if (!selectionBox) {
+			return;
+		}
 
 		const handleMouseMove = (e: MouseEvent) => {
 			const deltaX = Math.abs(e.clientX - selectionBox.startPos.x);
@@ -161,17 +162,11 @@ export function useSelectionBox({
 		};
 
 		const handleMouseUp = () => {
-			console.log(
-				JSON.stringify({ mouseUp: { wasActive: selectionBox?.isActive } })
-			);
-
 			// If we had an active selection, mark that we just finished selecting
 			if (selectionBox?.isActive) {
-				console.log(JSON.stringify({ settingJustFinishedSelecting: true }));
 				setJustFinishedSelecting(true);
 				// Clear the flag after a short delay to allow click events to check it
 				setTimeout(() => {
-					console.log(JSON.stringify({ clearingJustFinishedSelecting: true }));
 					setJustFinishedSelecting(false);
 				}, 50);
 			}

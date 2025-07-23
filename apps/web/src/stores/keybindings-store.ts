@@ -108,7 +108,7 @@ export const useKeybindingsStore = create<KeybindingsState>()(
 
 			importKeybindings: (config: KeybindingConfig) => {
 				// Validate all keys and actions
-				for (const [key, action] of Object.entries(config)) {
+				for (const [key, _action] of Object.entries(config)) {
 					// Validate the key format
 					if (typeof key !== "string" || key.length === 0) {
 						throw new Error(`Invalid key format: ${key}`);
@@ -169,7 +169,9 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
 	// We will always have a non-modifier key
 	const key = getPressedKey(ev);
-	if (!key) return null;
+	if (!key) {
+		return null;
+	}
 
 	// All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
 	if (modifierKey) {
@@ -186,7 +188,9 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 	}
 
 	// no modifier key here then we do not do anything while on input
-	if (isDOMElement(target) && isTypableElement(target)) return null;
+	if (isDOMElement(target) && isTypableElement(target)) {
+		return null;
+	}
 
 	// single key while not input
 	return `${key}` as ShortcutKey;
@@ -203,16 +207,30 @@ function getPressedKey(ev: KeyboardEvent): string | null {
 	}
 
 	// Check for special keys
-	if (key === "tab") return "tab";
-	if (key === " " || key === "space") return "space";
-	if (key === "home") return "home";
-	if (key === "end") return "end";
-	if (key === "delete") return "delete";
-	if (key === "backspace") return "backspace";
+	if (key === "tab") {
+		return "tab";
+	}
+	if (key === " " || key === "space") {
+		return "space";
+	}
+	if (key === "home") {
+		return "home";
+	}
+	if (key === "end") {
+		return "end";
+	}
+	if (key === "delete") {
+		return "delete";
+	}
+	if (key === "backspace") {
+		return "backspace";
+	}
 
 	// Check letter keys
 	const isLetter = key.length === 1 && key >= "a" && key <= "z";
-	if (isLetter) return key;
+	if (isLetter) {
+		return key;
+	}
 
 	// Check number keys using physical position for AZERTY support
 	if (code.startsWith("Digit")) {
@@ -224,10 +242,14 @@ function getPressedKey(ev: KeyboardEvent): string | null {
 
 	// Fallback for other layouts
 	const isDigit = key.length === 1 && key >= "0" && key <= "9";
-	if (isDigit) return key;
+	if (isDigit) {
+		return key;
+	}
 
 	// Check if slash, period or enter
-	if (key === "/" || key === "." || key === "enter") return key;
+	if (key === "/" || key === "." || key === "enter") {
+		return key;
+	}
 
 	// If no other cases match, this is not a valid key
 	return null;

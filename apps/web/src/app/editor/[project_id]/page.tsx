@@ -42,7 +42,9 @@ export default function Editor() {
 
 	useEffect(() => {
 		const initProject = async () => {
-			if (!projectId) return;
+			if (!projectId) {
+				return;
+			}
 
 			if (activeProject?.id === projectId) {
 				return;
@@ -54,7 +56,7 @@ export default function Editor() {
 
 			try {
 				await loadProject(projectId);
-			} catch (error) {
+			} catch (_error) {
 				handledProjectIds.current.add(projectId);
 
 				const newProjectId = await createNewProject("Untitled Project");

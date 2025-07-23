@@ -16,7 +16,9 @@ export const checkElementOverlaps = (elements: TimelineElement[]): boolean => {
 			(current.duration - current.trimStart - current.trimEnd);
 
 		// Check if current element overlaps with next element
-		if (currentEnd > next.startTime) return true; // Overlap detected
+		if (currentEnd > next.startTime) {
+			return true; // Overlap detected
+		}
 	}
 
 	return false; // No overlaps
@@ -36,7 +38,7 @@ export const resolveElementOverlaps = (
 		const current = { ...sortedElements[i] };
 
 		if (resolvedElements.length > 0) {
-			const previous = resolvedElements[resolvedElements.length - 1];
+			const previous = resolvedElements.at(-1);
 			const previousEnd =
 				previous.startTime +
 				(previous.duration - previous.trimStart - previous.trimEnd);

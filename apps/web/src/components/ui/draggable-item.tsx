@@ -52,7 +52,9 @@ export function DraggableMediaItem({
 		"data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
 
 	useEffect(() => {
-		if (!isDragging) return;
+		if (!isDragging) {
+			return;
+		}
 
 		const handleDragOver = (e: DragEvent) => {
 			setDragPosition({ x: e.clientX, y: e.clientY });

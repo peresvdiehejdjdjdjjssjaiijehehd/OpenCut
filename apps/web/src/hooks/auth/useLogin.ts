@@ -37,7 +37,7 @@ export function useLogin() {
 				provider: "google",
 				callbackURL: "/projects",
 			});
-		} catch (error) {
+		} catch (_error) {
 			setError("Failed to sign in with Google. Please try again.");
 			setIsGoogleLoading(false);
 		}
