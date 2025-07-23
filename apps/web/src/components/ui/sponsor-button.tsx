@@ -1,40 +1,39 @@
 import { motion } from "motion/react";
-import { ComponentType } from "react";
+import type { ComponentType } from "react";
 
 interface SponsorButtonProps {
-  href: string;
-  logo: ComponentType<{ className?: string }>;
-  companyName: string;
-  className?: string;
+	href: string;
+	logo: ComponentType<{ className?: string }>;
+	companyName: string;
+	className?: string;
 }
 
 export function SponsorButton({
-  href,
-  logo: Logo,
-  companyName,
-  className = "",
+	href,
+	logo: Logo,
+	companyName,
+	className = "",
 }: SponsorButtonProps) {
+	return (
+		<motion.a
+			className={`group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 shadow-lg backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:bg-white/10 ${className}`}
+			href={href}
+			rel="noopener noreferrer"
+			target="_blank"
+		>
+			<span className="font-medium text-xs text-zinc-400 transition-colors group-hover:text-zinc-300">
+				Sponsored by
+			</span>
 
-  return (
-    <motion.a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 transition-all duration-200 group shadow-lg ${className}`}
-    >
-      <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-300 transition-colors">
-        Sponsored by
-      </span>
+			<div className="flex items-center gap-1.5">
+				<div className="text-zinc-100 transition-colors group-hover:text-white">
+					<Logo className="h-4 w-4" />
+				</div>
 
-      <div className="flex items-center gap-1.5">
-        <div className="text-zinc-100 group-hover:text-white transition-colors">
-          <Logo className="w-4 h-4" />
-        </div>
-
-        <span className="text-xs font-medium text-zinc-100 group-hover:text-white transition-colors">
-          {companyName}
-        </span>
-      </div>
-    </motion.a>
-  );
+				<span className="font-medium text-xs text-zinc-100 transition-colors group-hover:text-white">
+					{companyName}
+				</span>
+			</div>
+		</motion.a>
+	);
 }

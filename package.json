@@ -2,9 +2,12 @@
   "name": "opencut",
   "packageManager": "bun@1.2.18",
   "devDependencies": {
+    "@biomejs/biome": "2.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "turbo": "^2.5.4",
     "typescript": "5.8.3",
-    "@biomejs/biome": "^2.1.2"
+    "ultracite": "5.0.47"
   },
   "workspaces": [
     "apps/*",
@@ -21,5 +24,10 @@
   "dependencies": {
     "next": "^15.3.4",
     "wavesurfer.js": "^7.9.8"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "npx ultracite format"
+    ]
   }
 }
