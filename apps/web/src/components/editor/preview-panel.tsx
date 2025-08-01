@@ -6,8 +6,8 @@ import { useMediaStore, type MediaItem } from "@/stores/media-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 import { useEditorStore } from "@/stores/editor-store";
 import { useAspectRatio } from "@/hooks/use-aspect-ratio";
-import { VideoPlayer } from "@/components/ui/video-player";
 import { AudioPlayer } from "@/components/ui/audio-player";
+import { CanvasRenderer } from "./canvas-renderer";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -259,220 +259,16 @@ export function PreviewPanel() {
 
   const activeElements = getActiveElements();
 
-  // Get media elements for blur background (video/image only)
-  const getBlurBackgroundElements = (): ActiveElement[] => {
-    return activeElements.filter(
-      ({ element, mediaItem }) =>
-        element.type === "media" &&
-        mediaItem &&
-        (mediaItem.type === "video" || mediaItem.type === "image") &&
-        element.mediaId !== "test" // Exclude test elements
-    );
-  };
+  // Get audio elements that need HTML audio players
+  const audioElements = activeElements.filter(
+    (e) => e.element.type === "media" && e.mediaItem?.type === "audio"
+  );
 
-  const blurBackgroundElements = getBlurBackgroundElements();
+  // Note: Blur background and visual elements now handled by CanvasRenderer
 
-  // Render blur background layer
-  const renderBlurBackground = () => {
-    if (
-      !activeProject?.backgroundType ||
-      activeProject.backgroundType !== "blur" ||
-      blurBackgroundElements.length === 0
-    ) {
-      return null;
-    }
+  // Note: Blur background now handled by CanvasRenderer
 
-    // Use the first media element for background (could be enhanced to use primary/focused element)
-    const backgroundElement = blurBackgroundElements[0];
-    const { element, mediaItem } = backgroundElement;
-
-    if (!mediaItem) return null;
-
-    const blurIntensity = activeProject.blurIntensity || 8;
-
-    if (mediaItem.type === "video") {
-      return (
-        <div
-          key={`blur-${element.id}`}
-          className="absolute inset-0 overflow-hidden"
-          style={{
-            filter: `blur(${blurIntensity}px)`,
-            transform: "scale(1.1)", // Slightly zoom to avoid blur edge artifacts
-            transformOrigin: "center",
-          }}
-        >
-          <VideoPlayer
-            src={mediaItem.url!}
-            poster={mediaItem.thumbnailUrl}
-            clipStartTime={element.startTime}
-            trimStart={element.trimStart}
-            trimEnd={element.trimEnd}
-            clipDuration={element.duration}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      );
-    }
-
-    if (mediaItem.type === "image") {
-      return (
-        <div
-          key={`blur-${element.id}`}
-          className="absolute inset-0 overflow-hidden"
-          style={{
-            filter: `blur(${blurIntensity}px)`,
-            transform: "scale(1.1)", // Slightly zoom to avoid blur edge artifacts
-            transformOrigin: "center",
-          }}
-        >
-          <img
-            src={mediaItem.url!}
-            alt={mediaItem.name}
-            className="w-full h-full object-cover"
-            draggable={false}
-          />
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  // Render an element
-  const renderElement = (elementData: ActiveElement, index: number) => {
-    const { element, mediaItem } = elementData;
-
-    // Text elements
-    if (element.type === "text") {
-      const fontClassName =
-        FONT_CLASS_MAP[element.fontFamily as keyof typeof FONT_CLASS_MAP] || "";
-
-      const scaleRatio = previewDimensions.width / canvasSize.width;
-
-      return (
-        <div
-          key={element.id}
-          className="absolute flex items-center justify-center cursor-grab"
-          onMouseDown={(e) =>
-            handleTextMouseDown(e, element, elementData.track.id)
-          }
-          style={{
-            left: `${
-              50 +
-              ((dragState.isDragging && dragState.elementId === element.id
-                ? dragState.currentX
-                : element.x) /
-                canvasSize.width) *
-                100
-            }%`,
-            top: `${
-              50 +
-              ((dragState.isDragging && dragState.elementId === element.id
-                ? dragState.currentY
-                : element.y) /
-                canvasSize.height) *
-                100
-            }%`,
-            transform: `translate(-50%, -50%) rotate(${element.rotation}deg) scale(${scaleRatio})`,
-            opacity: element.opacity,
-            zIndex: 100 + index, // Text elements on top
-          }}
-        >
-          <div
-            className={fontClassName}
-            style={{
-              fontSize: `${element.fontSize}px`,
-              color: element.color,
-              backgroundColor: element.backgroundColor,
-              textAlign: element.textAlign,
-              fontWeight: element.fontWeight,
-              fontStyle: element.fontStyle,
-              textDecoration: element.textDecoration,
-              padding: "4px 8px",
-              borderRadius: "2px",
-              whiteSpace: "nowrap",
-              // Fallback for system fonts that don't have classes
-              ...(fontClassName === "" && { fontFamily: element.fontFamily }),
-            }}
-          >
-            {element.content}
-          </div>
-        </div>
-      );
-    }
-
-    // Media elements
-    if (element.type === "media") {
-      // Test elements
-      if (!mediaItem || element.mediaId === "test") {
-        return (
-          <div
-            key={element.id}
-            className="absolute inset-0 bg-linear-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center"
-          >
-            <div className="text-center">
-              <div className="text-2xl mb-2">🎬</div>
-              <p className="text-xs text-white">{element.name}</p>
-            </div>
-          </div>
-        );
-      }
-
-      // Video elements
-      if (mediaItem.type === "video") {
-        return (
-          <div
-            key={element.id}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <VideoPlayer
-              src={mediaItem.url!}
-              poster={mediaItem.thumbnailUrl}
-              clipStartTime={element.startTime}
-              trimStart={element.trimStart}
-              trimEnd={element.trimEnd}
-              clipDuration={element.duration}
-            />
-          </div>
-        );
-      }
-
-      // Image elements
-      if (mediaItem.type === "image") {
-        return (
-          <div
-            key={element.id}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <img
-              src={mediaItem.url!}
-              alt={mediaItem.name}
-              className="max-w-full max-h-full object-contain"
-              draggable={false}
-            />
-          </div>
-        );
-      }
-
-      // Audio elements (no visual representation)
-      if (mediaItem.type === "audio") {
-        return (
-          <div key={element.id} className="absolute inset-0">
-            <AudioPlayer
-              src={mediaItem.url!}
-              clipStartTime={element.startTime}
-              trimStart={element.trimStart}
-              trimEnd={element.trimEnd}
-              clipDuration={element.duration}
-              trackMuted={elementData.track.muted}
-            />
-          </div>
-        );
-      }
-    }
-
-    return null;
-  };
+  // Note: Element rendering now handled by CanvasRenderer
 
   return (
     <>
@@ -495,23 +291,31 @@ export function PreviewPanel() {
                     : activeProject?.backgroundColor || "#000000",
               }}
             >
-              {renderBlurBackground()}
-              {activeElements.length === 0 ? (
+              {/* Canvas renderer handles all visual elements */}
+              <CanvasRenderer
+                width={previewDimensions.width}
+                height={previewDimensions.height}
+                className="absolute inset-0"
+              />
+
+              {/* Audio elements still use HTML audio for playback */}
+              {audioElements.map((elementData) => (
+                <AudioPlayer
+                  key={elementData.element.id}
+                  src={elementData.mediaItem!.url!}
+                  clipStartTime={elementData.element.startTime}
+                  trimStart={elementData.element.trimStart}
+                  trimEnd={elementData.element.trimEnd}
+                  clipDuration={elementData.element.duration}
+                  trackMuted={elementData.track.muted}
+                />
+              ))}
+
+              {activeElements.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                   No elements at current time
                 </div>
-              ) : (
-                activeElements.map((elementData, index) =>
-                  renderElement(elementData, index)
-                )
               )}
-              {activeProject?.backgroundType === "blur" &&
-                blurBackgroundElements.length === 0 &&
-                activeElements.length > 0 && (
-                  <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-2 rounded">
-                    Add a video or image to use blur background
-                  </div>
-                )}
             </div>
           ) : null}
 
