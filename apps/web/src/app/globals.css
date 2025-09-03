@@ -17,11 +17,11 @@
   --popover-foreground: hsl(0 0% 2%);
   --primary: hsl(205, 84%, 47%);
   --primary-foreground: hsl(0 0% 91%);
-  --secondary: hsl(216, 13%, 92%);
+  --secondary: hsl(216, 13%, 95%);
   --secondary-foreground: hsl(0 0% 2%);
   --muted: hsl(0 0% 85.1%);
   --muted-foreground: hsl(0 0% 50%);
-  --accent: hsl(216, 13%, 92%);
+  --accent: hsl(216, 13%, 95%);
   --accent-foreground: hsl(0 0% 2%);
   --destructive: hsl(0, 83%, 50%);
   --destructive-foreground: hsl(0, 0%, 100%);
