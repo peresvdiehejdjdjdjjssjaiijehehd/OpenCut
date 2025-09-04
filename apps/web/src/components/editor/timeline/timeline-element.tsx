@@ -10,6 +10,7 @@ import {
   Eye,
   Volume2,
   VolumeX,
+  FolderPlus,
 } from "lucide-react";
 import { useMediaStore } from "@/stores/media-store";
 import { useTimelineStore } from "@/stores/timeline-store";
@@ -369,6 +370,15 @@ export function TimelineElement({
             </ContextMenuItem>
           </>
         )}
+
+        <ContextMenuSeparator />
+
+        <ContextMenuItem onClick={() => {}}>
+          <FolderPlus className="h-4 w-4 mr-2" />
+          {isMultipleSelected && isCurrentElementSelected
+            ? `Group ${selectedElements.length} elements into scene`
+            : `Group into scene`}
+        </ContextMenuItem>
 
         <ContextMenuSeparator />
 
