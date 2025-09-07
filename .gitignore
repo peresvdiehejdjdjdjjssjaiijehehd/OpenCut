@@ -32,3 +32,9 @@ apps/transcription/__pycache__
 apps/transcription/env
 
 apps/bg-remover/env
+
+# Rust
+/target
+Cargo.lock
+apps/core/target/
+apps/core/pkg/
