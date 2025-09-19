@@ -105,7 +105,7 @@ The application uses **Zustand** for state management with separate stores for d
 **Required environment variables (apps/web/.env.local):**
 ```bash
 # Database
-DATABASE_URL="postgresql://opencut:opencutthegoat@localhost:5432/opencut"
+DATABASE_URL="postgresql://opencut:opencut@localhost:5432/opencut"
 
 # Authentication
 BETTER_AUTH_SECRET="your-generated-secret-here"
